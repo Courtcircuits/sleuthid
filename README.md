@@ -1,7 +1,9 @@
 <center>
-# Sleuth ID
-## Analyze and exploit UUIDv1 🕵️
+<h1>Sleuth ID</h1>
+<h2>Analyze and exploit UUIDv1 🕵️</h2>
 </center>
+
+---
 
 ![demo](./demo.gif)
 
