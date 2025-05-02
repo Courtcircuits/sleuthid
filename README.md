@@ -1,9 +1,8 @@
-<center>
+<div align="center">
 <h1>Sleuth ID</h1>
 <h2>Analyze and exploit UUIDv1 🕵️</h2>
-</center>
-
----
+</div>
+</br>
 
 ![demo](./demo.gif)
 
