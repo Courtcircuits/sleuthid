@@ -1,3 +1,4 @@
+use serde::Serialize;
 use std::fmt;
 
 use chrono::{DateTime, Utc};
@@ -23,9 +24,19 @@ pub struct Timestamp(RawTimestamp);
 impl fmt::Debug for Timestamp {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let timestamp = self.0;
-        println!("Timestamp: {}", timestamp);
         let dt: DateTime<Utc> = DateTime::from_timestamp_nanos(timestamp as i64);
-        write!(f, "{}", dt.to_rfc2822())
+
+        write!(f, "{}", dt.format("%Y-%m-%d %H:%M:%S%.f"))
+    }
+}
+
+impl serde::Serialize for Timestamp {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        let formatted = format!("{:?}", self);
+        serializer.serialize_str(&formatted)
     }
 }
 
@@ -33,18 +44,17 @@ impl Timestamp {
     pub fn from_date_time(datetime: DateTime<Utc>) -> Timestamp {
         let timestamp_ns: u64 = match datetime.timestamp_nanos_opt() {
             Some(val) => val as u64,
-            None => 0 as u64,
+            _ => 0 as u64,
         };
-        println!("Timestamp: {}", timestamp_ns);
 
-        let full_time: u64 = (timestamp_ns / 100 + OFFSET);
+        let full_time: u64 = timestamp_ns / 100 + OFFSET;
 
         Timestamp(full_time)
     }
 
-    pub fn get_time_low(&self) -> u32 {
+    pub fn get_time_low(&self, offset: i32) -> u32 {
         let time_low = (self.0 & 0x00000000FFFFFFFF) as u32;
-        time_low - 1
+        time_low + offset as u32
     }
 
     pub fn get_time_mid(&self) -> u16 {
@@ -78,6 +88,16 @@ impl fmt::Debug for MAC {
         Ok(())
     }
 }
+
+impl Serialize for MAC {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        let formatted = format!("{:?}", self);
+        serializer.serialize_str(&formatted)
+    }
+}
 impl MAC {
     pub fn to_string(&self) -> String {
         let mut res: String = "".to_string();
@@ -88,7 +108,7 @@ impl MAC {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 pub struct UUIDAnalyze {
     // ns timestamp from 1970
     pub timestamp: Timestamp,

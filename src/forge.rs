@@ -1,4 +1,4 @@
-use chrono::{DateTime, Local, Utc};
+use chrono::{DateTime, Utc};
 
 use crate::analyze::{self, MAC, Timestamp, UUIDAnalyze};
 
@@ -35,15 +35,11 @@ impl UUIDForge {
         self
     }
 
-    pub fn forge(&self) -> String {
+    pub fn forge(&self, offset: i32) -> String {
         let part_four = self.mac.to_string();
         let part_three = format!("{:02X?}", self.clock_seq);
         let timestamp = Timestamp::from_date_time(self.uuid_time);
-        println!("timestamp: {:?}", timestamp);
-        println!("time low : {}", timestamp.get_time_low());
-        println!("time high : {}", timestamp.get_time_high());
-        println!("time mid : {}", timestamp.get_time_mid());
-        let part_zero = format!("{:02X?}", timestamp.get_time_low());
+        let part_zero = format!("{:02X?}", timestamp.get_time_low(offset));
         let part_one = format!("{:02X?}", timestamp.get_time_mid());
         // the high field of the timestamp multiplexed with the version number.
         // set the 12 least significant bits of the time_high_and_version field (48 to 59) from the timestamp in the same order of significance
